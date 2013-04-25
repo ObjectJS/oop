@@ -1,45 +1,47 @@
-module("class-basic");
+var assert = require('assert');
+var oop = require('../lib/oop.js');
+var Class = oop.Class;
+var Type = oop.Type;
+var property = oop.property;
+var classmethod = oop.classmethod;
+var staticmethod = oop.staticmethod;
+var equal = assert.equal;
+var notEqual = assert.notEqual;
+var strictEqual = assert.strictEqual;
+var ok = assert.ok;
 
-test('__module__', function() {
-	object.define('test__module__', function() {
-		var A = new Class({});
-		equal(A.__module__, 'test__module__', '__module__ ok.');
-
-		stop();
-		var image = new Image();
-		image.onload = image.onerror = function() {
-			start();
-			var B = new Class({});
-			equal(B.__module__, '', 'async class __module__ empty.')
-		};
-		image.src = 'not-exists.jpg';
-	});
-	object.use('test__module__', function() {});
-	object.remove('test_module__');
-});
-
-test('modify global variable in constructor', function() {
+describe('class constructor', function() {
 	var counter = 0;
 	var A = new Class(function() {
 		counter = counter + 1;
 	});
-	ok(counter == 1, 'just define a new class A, global variable(counter) should not be modified');
+
+	it('should run after define a class', function() {
+		equal(counter, 1);
+	});
 });
 
-test('modify global variable in initialize method', function() {
+describe('initialize method', function() {
 	var counter = 0;
 	var A = new Class(function() {
 		this.initialize = function(self) {
-			counter ++;
+			counter++;
 		};
 	});
-	new A();
-	equal(counter, 1, 'ok');
-	new A();
-	equal(counter, 2, 'ok');
+
+	it('should not run after define a class', function() {
+		equal(counter, 0);
+	});
+
+	it('should run after create instance', function() {
+		new A();
+		equal(counter, 1);
+		new A();
+		equal(counter, 2);
+	});
 });
 
-test('getter/setter basic', function() {
+describe('property', function() {
 	var C = new Class({});
 	var A = new Class(function(){
 		this.a = property(function(self){
@@ -64,104 +66,178 @@ test('getter/setter basic', function() {
 
 		this.cls = C;
 	});
+
 	A.b = 2;
-
 	var a = new A();
-	ok(A.set != null, 'A.set is not null');
-	ok(a.set != null, 'a.set is not null');
-	ok(A.get != null, 'A.get is not null');
-	ok(a.get != null, 'a.get is not null');
 
-	equal(a.get('a'), undefined, 'self.get(a) is undefined');
-	a.set('a', 1);
-	equal(a.get('a'), 1, 'self.get(a) is 1 after set by a.set(a, 1)');
-	a.set('a');
-	equal(a.get('a'), undefined, 'self.get(a) is undefined after set by a.set(a)');
-	try {
-		a.set('b');
-	} catch (e) {
-	   ok(true, 'can not set a property value without property(getter, setter) in instance : ' + e);
-	}
+	it('self.get(a) is undefined', function() {
+		strictEqual(a.get('a'), undefined);
+	});
 
-	equal(A.get('b'), 2, 'cls.get is ok, because A.b=2, so A.get(b) is 2');
-	A.set('b', 4);
-	equal(A.get('b'), 4, 'A.get(b) should be 4 after A.set(b, 4)');
+	it('self.get(a) is 1 after set by a.set(a, 1)', function() {
+		a.set('a', 1);
+		equal(a.get('a'), 1);
+	});
+
+	it('self.get(a) is undefined after set by a.set(a)', function() {
+		a.set('a');
+		equal(a.get('a'), undefined);
+	})
+
+	it('can not set a property value without property(getter, setter)', function() {
+		try {
+			a.set('b');
+			ok(false);
+		} catch (e) {
+		   ok(true);
+		}
+	});
+
+	it('cls.get is ok, because A.b=2, so A.get(b) is 2', function() {
+		equal(A.get('b'), 2);
+	});
+
+	it('A.get(b) should be 4 after A.set(b, 4)', function() {
+		A.set('b', 4);
+		equal(A.get('b'), 4);
+	})
 
 	// get a class memeber
-	strictEqual(a.get('cls'), C, 'get a class member ok.');
-	strictEqual(A.get('cls'), C, 'get a class member in class ok.');
-
-	// mutiple
-	a.set({
-		'c': 1,
-		'd': 1
+	it('get a class member ok.', function() {
+		strictEqual(a.get('cls'), C);
 	});
-	ok(a.get('c') == 1 && a.get('d') == 1, 'mutiple set ok.');
+
+	it('get a class member in class ok.', function() {
+		strictEqual(A.get('cls'), C);
+	});
+
+	it('mutiple set ok.', function() {
+		// mutiple
+		a.set({
+			'c': 1,
+			'd': 1
+		});
+		ok(a.get('c') == 1 && a.get('d') == 1);
+	});
 
 	// method bind
-	equal(a.m(), 1, 'method called.');
-	var m = a.get('m');
-	equal(m(), 1, 'self bind method called ok.');
-	m = a.get('m', {value: 2});
-	equal(m(), 2, 'custom bind method call ok.');
+	it('method called.', function() {
+		equal(a.m(), 1);
+	});
 
-	equal(a.cm(), 1, 'classmethod called.');
-	var m = a.get('cm');
-	equal(m(), 1, 'self bind classmethod called ok.');
-	// 创建一个新的类的实例用于绑定
-	var m = a.get('cm', new (new Class({value: 2})));
-	equal(m(), 2, 'custom bind classmethod call ok.');
+	it('method called.', function() {
+		var m = a.get('m');
+		equal(m(), 1);
+	});
 
-	equal(a.sm(), 1, 'instancemethod called.');
-	var m = a.get('sm');
-	equal(m(), 1, 'self bind instancemethod called ok.');
-	m = a.get('sm', {value: 2});
-	equal(m(), 2, 'custome bind instancemethod call ok.');
+	it('custom bind method call ok.', function() {
+		var m = a.get('m', {value: 2});
+		equal(m(), 2);
+	});
 
-	// 不绑定
-	m = a.get('m', false);
-	strictEqual(m(), undefined, 'no bind called ok.');
+	it('classmethod called.', function() {
+		equal(a.cm(), 1);
+	});
 
+	it('self bind classmethod called ok.', function() {
+		var m = a.get('cm');
+		equal(m(), 1);
+	});
+
+	it('custom bind classmethod call ok.', function() {
+		// 创建一个新的类的实例用于绑定
+		var m = a.get('cm', new (new Class({value: 2})));
+		equal(m(), 2);
+	});
+
+	it('instancemethod called.', function() {
+		equal(a.sm(), 1);
+	});
+
+	it('self bind instancemethod called ok.', function() {
+		var m = a.get('sm');
+		equal(m(), 1);
+	});
+
+	it('custome bind instancemethod call ok.', function() {
+		var m = a.get('sm', {value: 2});
+		equal(m(), 2);
+	});
+
+	it('no bind called ok.', function() {
+		// 不绑定
+		var m = a.get('m', false);
+		strictEqual(m(), undefined);
+	});
 });
+return;
 
-test('__getattr__/__setattr__', function() {
+describe('__getattr__/__setattr__', function() {
+
+	var existsAttrCalled = 0;
+	var unexistsAttrCalled = 0;
+	var setCalled = 0;
+
 	var A = new Class(function() {
 		this.__getattr__ = function(self, name) {
 			if (name == 'a') {
-				ok(false, 'get an exists attr, __getattr__ will not called.');
+				existsAttrCalled++;
 				return self.a;
 			}
 			if (name == 'b') {
-				ok(true, 'get an unexists attr, __getattr__ will called.');
+				unexistsAttrCalled++;
 				return 'b';
 			}
 		};
 		this.__setattr__ = function(self, name, value) {
-			ok(true, 'set an attr will always call __setattr__.');
+			setCalled++;
 			Object.__setattr__(self, name, value);
 		};
 		this.a = 1;
 	});
 
 	var a = new A();
-	equal(a.get('a'), 1, 'get exists value ok.'); // will not call
-	equal(a.get('b'), 'b', 'get not exists custome value ok.'); // will call
-	equal(a.get('c'), undefined, 'get not exists value ok.'); // will call
-	a.set('a', 1) // will call
-	a.set('b', 1) // will call
-	equals(a.a, 1, 'ok')
-	equals(a.b, 1, 'ok')
+
+	it('get exists value ok.', function() {
+		equal(a.get('a'), 1); // will not call
+	});
+
+	it('get not exists custome value ok.', function() {
+		equal(a.get('b'), 'b'); // will call
+	});
+	
+	it('get not exists value ok.', function() {
+		equal(a.get('c'), undefined); // will call
+	});
+	
+	it('ok', function() {
+		a.set('a', 1); // will call
+		equal(a.a, 1);
+
+		a.set('b', 1); // will call
+		equal(a.b, 1);
+	});
+
+	it('get an exists attr, __getattr__ will not called.', function() {
+		equal(existsAttrCalled, 0);
+	});
+
+	it('get an unexists attr, __getattr__ will called.', function() {
+		equal(unexistsAttrCalled, 1);
+	});
+
+	it('set an attr will always call __setattr__.', function() {
+		equal(setCalled, 2);
+	});
+
 });
 
-test('__getattr__/__setattr__ in class', function() {
+describe('__getattr__/__setattr__ in class', function() {
 	var setattrCalled = 0;
-	var M = new Class(type, function() {
+	var M = new Class(Type, function() {
 		this.__setattr__ = function(self, name, value) {
-			if (name == 'test') {
-				ok(true, '__setattr__ called.')
-			}
 			setattrCalled++;
-			type.__setattr__(self, name, value);
+			Type.__setattr__(self, name, value);
 		};
 		this.initialize = function(cls) {
 			// 这里的set就会触发__setattr__了
@@ -176,29 +252,48 @@ test('__getattr__/__setattr__ in class', function() {
 	var AA = new M(function() {
 	});
 
-	A.set('test', 1);
-	equal(A.get('test'), 1, 'value setted.');
+	it('value setted', function() {
+		A.set('test', 1);
+		equal(A.get('test'), 1);
+	});
 
-	// 在类的创建过程中是不会调用自定义的__setattr__的，在initialize中手工调用了2此，因此只调用3次
-	equal(setattrCalled, 3, 'setattr called times ok.')
+	it('setattr called times ok.', function() {
+		// 在类的创建过程中是不会调用自定义的__setattr__的，在initialize中手工调用了2此，因此只调用3次
+		equal(setattrCalled, 3)
+	});
 });
 
-test('set to null/0/""/undefined/NaN', function() {
+describe('set to null/0/""/undefined/NaN', function() {
 	var A = new Class(function() {});
-	A.set('a', null);
-	equal(A.get('a'), null, 'set to null, get null');
-	A.set('b', 0);
-	equal(A.get('b'), 0, 'set to 0, get 0');
-	A.set('c', "");
-	equal(A.get('c'), "", 'set to "", get ""');
-	A.set('c', undefined);
-	equal(A.get('c'), undefined, 'set to undefined, get undefined');
-	A.set('c', NaN);
-	ok(isNaN(A.get('c')), 'set to NaN, get NaN');
+
+	it('set to null, get null', function() {
+		A.set('a', null);
+		equal(A.get('a'), null);
+	});
+
+	it('set to 0, get 0', function() {
+		A.set('b', 0);
+		equal(A.get('b'), 0);
+	});
+	
+	it('set to "", get ""', function() {
+		A.set('c', "");
+		equal(A.get('c'), "");
+	});
+	
+	it('set to undefined, get undefined', function() {
+		A.set('c', undefined);
+		equal(A.get('c'), undefined);
+	});
+	
+	it('set to NaN, get NaN', function() {
+		A.set('c', NaN);
+		ok(isNaN(A.get('c')));
+	});
 });
 
 //set special property: __mixins__/__metaclass__/__new__/__this__/__base__
-test('set special property : __mixins__', function() {
+describe('set special property : __mixins__', function() {
 	var mixin = new Class(function() {
 		this.mixin_by_mixin = function() {
 			return 1;
@@ -211,20 +306,26 @@ test('set special property : __mixins__', function() {
 	var a = new A();
 
 	A.set('__mixins__', 'mixin');
-	notEqual(A.get('__mixins__'), undefined, '__mixins__ can not be set as string');
 
-	try {
-		var b = new A();
-	} catch (e) {
-		ok(false, 'new A() raises error after __mixins__ is setted to string : ' + e);
-	}
+	it('__mixins__ can not be set as string', function() {
+		notEqual(A.get('__mixins__'), undefined);
+	});
+
+	it('new A() won\'t raises error after __mixins__ is setted to string.', function() {
+		try {
+			var b = new A();
+			ok(true);
+		} catch (e) {
+			ok(false);
+		}
+	});
 });
 
-test('set special property : __metaclass__', function() {
-	var meta = new Class(type, function() {
+describe('set special property : __metaclass__', function() {
+	var meta = new Class(Type, function() {
 		this.initialize = function(cls, name, base, dict) {};
 		this.__new__ = function(cls, name, base, dict) {
-			return type.__new__(cls, name, base, dict);
+			return Type.__new__(cls, name, base, dict);
 		};
 	});
 	var A = new Class(function(){
@@ -232,38 +333,48 @@ test('set special property : __metaclass__', function() {
 	});
 
 	A.set('__metaclass__', 'string');
-	equal(A.get('__metaclass__'), undefined, '__metaclass__ is changed if set to string');
 
-	try {
-		var B = new Class(A, function() {});
-		ok(true, 'B inherited from A is ok after __metaclass__ is setted to string');
-	} catch (e) {
-		ok(false, 'B inherited from A, raises error after __metaclass__ is setted to string : ' + e);
-	}
+	it('__metaclass__ is changed if set to string', function() {
+		equal(A.get('__metaclass__'), undefined);
+	});
+
+	it('B inherited from A is ok after __metaclass__ is setted to string', function() {
+		try {
+			var B = new Class(A, function() {});
+			ok(true);
+		} catch (e) {
+			ok(false);
+		}
+	});
+
 });
 
-test('set special property : __new__', function() {
+describe('set special property : __new__', function() {
 	var A = new Class(function() {
 		this.initialize = function(cls, name, base, dict) {};
 		this.__new__ = function(cls, name, base, dict) {
-			return type.__new__(cls, name, base, dict);
+			return Type.__new__(cls, name, base, dict);
 		};
 	});
 	A.set('__new__', 'string');
 
-	notEqual(A.get('__new__'), undefined, '__new__ is not changed if set to string');
+	it('__new__ is not changed if set to string', function() {
+		notEqual(A.get('__new__'), undefined);
+	});
 
-	try {
-		var B = new Class(function() {
-			this.__metaclass__ = A;
-		});
-		ok(true, 'new A() is ok after __new__ is setted to string');
-	} catch (e) {
-		ok(false, 'new A() raises error after __new__ is setted to string : ' + e);
-	}
+	it('new A() is ok after __new__ is setted to string.', function() {
+		try {
+			var B = new Class(function() {
+				this.__metaclass__ = A;
+			});
+			ok(true);
+		} catch (e) {
+			ok(false);
+		}
+	});
 });
 
-test('set special property : __this__', function() {
+describe('set special property : __this__', function() {
 	var A = new Class(function(){
 		this.a = classmethod(function(cls) {
 			return cls._name;
@@ -277,20 +388,26 @@ test('set special property : __this__', function() {
 		});
 	});
 
-	B.set('__this__', 'string');
-	notEqual(B.get('__this__'), 'string', '__this__ is not changed if set to string');
+	it('__this__ is not changed if set to string', function() {
+		B.set('__this__', 'string');
+		notEqual(B.get('__this__'), 'string');
+	});
 
 	B._name = 1;
 
-	try {
-		equal(A.a(), 1, 'ok');
-		equal(B.a(), 1, 'ok');
-	} catch (e) {
-		ok(false, 'B.a() raises error after set __this__ to string : ' + e);
-	}
+	it('B.a() won\'t raises error after set __this__ to string.', function() {
+		try {
+			equal(A.a(), 1);
+			equal(B.a(), 1);
+			ok(true);
+		} catch (e) {
+			ok(false);
+		}
+	});
+
 });
 
-test('set special property : __base__', function() {
+describe('set special property : __base__', function() {
 	var A = new Class(function(){
 		this.a = function(self) {
 			return 1;
@@ -301,18 +418,24 @@ test('set special property : __base__', function() {
 			return this.parent();
 		}
 	});
-	B.set('__base__', 'string');
-	notEqual(B.get('__base__'), 'string', '__base__ is not changed if set to string');
 
-	var b = new B();
-	try {
-		equal(b.a(), 1, 'xxx.parent() is ok, after __base__ is setted to string');
-	} catch (e) {
-		ok(false, 'xxx.parent() raises error after __new__ is setted to string : ' + e);	
-	}
+	B.set('__base__', 'string');
+
+	it('__base__ is not changed if set to string', function() {
+		notEqual(B.get('__base__'), 'string');
+	});
+
+	it('xxx.parent() is ok, after __base__ is setted to string', function() {
+		var b = new B();
+		try {
+			equal(b.a(), 1);
+		} catch (e) {
+			ok(false);	
+		}
+	});
 });
 
-test('set special property : @mixins', function() {
+describe('set special property : @mixins', function() {
 	var mixin = new Class(function() {
 		this.mixin_by_mixin = function() {
 			return 1;
@@ -323,14 +446,19 @@ test('set special property : @mixins', function() {
 	});
 
 	A.set('@mixins', 'mixin');
-	notEqual(A.get('@mixins'), 'mixin', 'set @mixins, but only can get by __mixins__, not convenient');
-	
-	try {
-		var b = new A();
-		ok(true, 'new A() is ok after @mixins is setted to string');
-	} catch (e) {
-		ok(false, 'new A() raises error after @mixins is setted to string : ' + e);
-	}
+
+	it('set @mixins, but only can get by __mixins__, not convenient', function() {
+		notEqual(A.get('@mixins'), 'mixin');
+	});
+
+	it('new A() is ok after @mixins is setted to string', function() {
+		try {
+			var b = new A();
+			ok(true);
+		} catch (e) {
+			ok(false);
+		}
+	});
 
 });
 
@@ -338,7 +466,7 @@ test('set special property : @mixins', function() {
 //set, then check Class/Class.prototype/instance.prototype
 //set is different in class and instance(cls.set/instance.set/cls.get/instance.get);
 //set B extended from A, whether A.set will cause changes of B?
-test('overwrite class members, by set', function() {
+describe('overwrite class members, by set', function() {
 	var A = new Class(function(){
 		this.a = 1;
 		this.a1 = 1;
@@ -366,97 +494,173 @@ test('overwrite class members, by set', function() {
 		this.e3 = property(function(self) { return 1; });
 		this.e4 = property(function(self) { return 1; });
 	});
+
 	var a = new A();
 
-	equal(a.get('e'), 1, 'property e is ok before overwrite, after overwrite, it will be deleted');
+	it('property e is ok before overwrite, after overwrite, it will be deleted', function() {
+		equal(a.get('e'), 1);
+	});
+
 	//if member is not a property, then it can not be overwrited by non-property member, especially in inheritance;
 	A.set('a', 2);
 	A.set('a1', function() { return 2});
 	A.set('a2', staticmethod(function() { return 2}));
-	A.set('a3', classmethod (function(cls) { return 2}));
-	A.set('a4', property    (function(self) { return 2}));
+	A.set('a3', classmethod(function(cls) { return 2}));
+	A.set('a4', property(function(self) { return 2}));
 	A.set('b', 2);
 	A.set('b1', function() { return 2});
 	A.set('b2', staticmethod(function() { return 2}));
-	A.set('b3', classmethod (function(cls) { return 2}));
-	A.set('b4', property    (function(self) { return 2}));
+	A.set('b3', classmethod(function(cls) { return 2}));
+	A.set('b4', property(function(self) { return 2}));
 	A.set('c', 2);
 	A.set('c1', function() { return 2});
 	A.set('c2', staticmethod(function() { return 2}));
-	A.set('c3', classmethod (function(cls) { return 2}));
-	A.set('c4', property    (function(self) { return 2}));
+	A.set('c3', classmethod(function(cls) { return 2}));
+	A.set('c4', property(function(self) { return 2}));
 	A.set('d', 2);
 	A.set('d1', function() { return 2});
 	A.set('d2', staticmethod(function() { return 2}));
-	A.set('d3', classmethod (function(cls) { return 2}));
-	A.set('d4', property    (function(self) { return 2}));
+	A.set('d3', classmethod(function(cls) { return 2}));
+	A.set('d4', property(function(self) { return 2}));
 	A.set('e', 2);
 	A.set('e1', function() { return 2});
 	A.set('e2', staticmethod(function() { return 2}));
-	A.set('e3', classmethod (function(cls) { return 2}));
-	A.set('e4', property    (function(self) { return 2}));
+	A.set('e3', classmethod(function(cls) { return 2}));
+	A.set('e4', property(function(self) { return 2}));
+
 	var a = new A();
-	equal(a.a, 2, 'overwrite, from attribute to attribute');
-	equal(a.b, 2, 'overwrite, from instancemethod to attribute');
-	equal(a.c, 2, 'overwrite, from staticmethod to attribute');
-	equal(a.d, 2, 'overwrite, from classmethod to attribute');
-	equal(a.e, 2, 'overwrite, from property to attribute');
-	equal(a.a1(), 2, 'overwrite, from attribute to instancemethod');
-	equal(a.b1(), 2, 'overwrite, from instancemethod to instancemethod');
-	equal(a.c1(), 2, 'overwrite, from staticmethod to instancemethod');
-	try {
-		equal(A.d1(), 2, 'overwrite, from classmethod to instancemethod');
-		ok(false, 'overwrite from classmethod to instancemethod, changed the behavior of d1');
-	} catch (e) {
-		ok(true, 'overwrite from classmethod to instancemethod, changed the behavior of d1');
-	}
-	equal(a.e1(), 2, 'overwrite, from property to instancemethod');
-	equal(a.a2(), 2, 'overwrite, from attribute to staticmethod');
-	equal(a.b2(), 2, 'overwrite, from instancemethod to staticmethod');
-	equal(a.c2(), 2, 'overwrite, from staticmethod to staticmethod');
-	equal(A.d2(), 2, 'overwrite, from classmethod to staticmethod');
-	equal(a.e2(), 2, 'overwrite, from property to staticmethod');
-	try {
-		equal(a.a3(), 2, 'overwrite, from attribute to classmethod');
-	} catch (e) {
-		ok(true, 'overwrite from attribute to classmethod, changed the behavior of a3');
-	}
-	try {
-		equal(a.b3(), 2, 'overwrite, from instancemethod to classmethod');
-	} catch (e) {
-		ok(false, 'overwrite from instancemethod to classmethod, changed the behavior of b3');
-	}
-	try {
-		equal(a.c3(), 2, 'overwrite, from staticmethod to classmethod');
-	} catch (e) {
-		ok(false, 'overwrite from staticmethod to classmethod, changed the behavior of c3');
-	}
-	equal(A.d3(), 2, 'overwrite, from classmethod to classmethod');
-	try {
-		equal(a.e3(), 2, 'overwrite, from property to classmethod');
-	} catch (e) {
-		ok(false, 'overwrite from property to classmethod, changed the behavior of e3');
-	}
-	try {
-		equal(a.b4(), 2, 'overwrite, from instancemethod to property');
-	} catch (e) {
-		ok(true, 'overwrite from instancemethod to property, changed the behavior of b4');
-	}
-	try {
-		equal(a.c4(), 2, 'overwrite, from staticmethod to property');
-	} catch (e) {
-		ok(true, 'overwrite from staticmethod to property, changed the behavior of c4');
-	}
-	try {
-		equal(A.d4(), 2, 'overwrite, from classmethod to property');
-	} catch (e) {
-		ok(true, 'overwrite from classmethod to property, changed the behavior of d4');
-	}	
-	
-	equal(a.get('e4'), 2, 'overwrite, from property to property');
+
+	it('overwrite, from attribute to attribute', function() {
+		equal(a.a, 2);
+	});
+
+	it('overwrite, from instancemethod to attribute', function() {
+		equal(a.b, 2);
+	});
+
+	it('overwrite, from staticmethod to attribute', function() {
+		equal(a.c, 2);
+	});
+
+	it('overwrite, from classmethod to attribute', function() {
+		equal(a.d, 2);
+	});
+
+	it('overwrite, from property to attribute', function() {
+		equal(a.e, 2);
+	});
+
+	it('overwrite, from attribute to instancemethod', function() {
+		equal(a.a1(), 2);
+	});
+
+	it('overwrite, from instancemethod to instancemethod', function() {
+		equal(a.b1(), 2);
+	});
+
+	it('overwrite, from staticmethod to instancemethod', function() {
+		equal(a.c1(), 2);
+	});
+
+	it('overwrite from classmethod to instancemethod, changed the behavior of d1', function() {
+		try {
+			A.d1();
+			ok(false);
+		} catch (e) {
+			ok(true);
+		}
+	});
+
+	it('overwrite, from property to instancemethod', function() {
+		equal(a.e1(), 2);
+	});
+
+	it('overwrite, from attribute to staticmethod', function() {
+		equal(a.a2(), 2);
+	});
+
+	it('overwrite, from instancemethod to staticmethod', function() {
+		equal(a.b2(), 2);
+	});
+
+	it('overwrite, from staticmethod to staticmethod', function() {
+		equal(a.c2(), 2);
+	});
+
+	it('overwrite, from classmethod to staticmethod', function() {
+		equal(A.d2(), 2);
+	});
+
+	it('overwrite, from property to staticmethod', function() {
+		equal(a.e2(), 2);
+	});
+
+	it('overwrite from attribute to classmethod, changed the behavior of a3', function() {
+		try {
+			a.a3();
+		} catch (e) {
+			ok(true);
+		}
+	});
+
+	it('overwrite from instancemethod to classmethod, changed the behavior of b3', function() {
+		try {
+			equal(a.b3(), 2);
+		} catch (e) {
+			ok(false);
+		}
+	});
+
+	it('overwrite from staticmethod to classmethod, changed the behavior of c3', function() {
+		try {
+			equal(a.c3(), 2);
+		} catch (e) {
+			ok(false);
+		}
+	});
+
+	it('overwrite, from classmethod to classmethod', function() {
+		equal(A.d3(), 2);
+	});
+
+	it('overwrite from property to classmethod, changed the behavior of e3', function() {
+		try {
+			equal(a.e3(), 2);
+		} catch (e) {
+			ok(false);
+		}
+	});
+
+	it('overwrite from instancemethod to property, changed the behavior of b4', function() {
+		try {
+			a.b4();
+		} catch (e) {
+			ok(true);
+		}
+	});
+
+	it('overwrite from staticmethod to property, changed the behavior of c4', function() {
+		try {
+			a.c4();
+		} catch (e) {
+			ok(true);
+		}
+	});
+
+	it('overwrite from classmethod to property, changed the behavior of d4', function() {
+		try {
+			A.d4();
+		} catch (e) {
+			ok(true);
+		}	
+	});
+
+	it('overwrite, from property to property', function() {
+		equal(a.get('e4'), 2);
+	});
 });
 
-test('set after class instance is created', function() {
+describe('set after class instance is created', function() {
 	var A = new Class(function() {
 		this.a = 1;
 		this.b = function(self){return 1;};
@@ -465,16 +669,23 @@ test('set after class instance is created', function() {
 		this.e = property(function(self){return 1;});
 	});
 	var a = new A();
-	equal(a.get('e'), 1, 'e is an property, get(e) ok');
-	A.set('e', 2);
-	try {
-		equal(a.get('e'), 2, 'e is an property, get(e) ok');
-	} catch (e) {
-		ok(true, 'A.set changed the behavior of a.get(e), even after instance is created : ' + e);
-	}
+
+	it('e is an property, get(e) ok', function() {
+		equal(a.get('e'), 1);
+	});
+
+	it('A.set changed the behavior of a.get(e), even after instance is created', function() {
+		A.set('e', 2);
+		try {
+			a.get('e');
+		} catch (e) {
+			ok(true);
+		}
+	});
 });
 
-test('set after extended by many classes', function() {
+return;
+describe('set after extended by many classes', function() {
 	var A = new Class(function() {
 		this.e = property(function(self){return 1;});
 	});
@@ -533,7 +744,7 @@ test('set after extended by many classes', function() {
 	}
 });
 
-test('instancemethod', function() {
+describe('instancemethod', function() {
 	customBinderMethodCalled = 0;
 
 	var A = new Class(function() {
@@ -597,7 +808,7 @@ test('instancemethod', function() {
 
 });
 
-test('classmethod', function() {
+describe('classmethod', function() {
 	equal(classmethod(function(){}).__class__, classmethod, 'the __class__ of method wrapped by classmethod, is classmethod');
 	var A = new Class(function() {
 		this.a = classmethod(function(cls) {
@@ -618,7 +829,7 @@ test('classmethod', function() {
 	}
 });
 
-test('staticmethod', function() {
+describe('staticmethod', function() {
 	equal(staticmethod(function(){}).__class__, staticmethod, 'the __class__ of method wrapped by staticmethod, is staticmethod');
 	var A = new Class(function() {
 		this.a = staticmethod(function() {
@@ -630,7 +841,7 @@ test('staticmethod', function() {
 	equal(a.a(), 1, 'staticmethod can be retrieved by instance a.a');
 });
 
-test('property', function() {
+describe('property', function() {
 	equal(property(function(){}).__class__, property, 'the __class__ of method wrapped by property, is property');
 	var A = new Class(function() {
 		this.initialize = function(self) {
@@ -648,13 +859,13 @@ test('property', function() {
 	equal(a.get('a'), 2, 'property get and set successfully');
 });
 
-test('class member in class', function() {
+describe('class member in class', function() {
 
 	var A = new Class({});
 	var B = new Class(object, {});
 	var C = new Class(B, {});
 
-	var D = new Class(type, {});
+	var D = new Class(Type, {});
 	var E = new Class(D, {});
 	var F = new E(D, {});
 	var G = new F({});
@@ -697,7 +908,7 @@ test('class member in class', function() {
 });
 
 //set : name/constructor/prototype...
-test('name/constructor/prototype as member of class', function() {
+describe('name/constructor/prototype as member of class', function() {
 	//this.name == ...
 	//A.set('name', fdafda);
 	var A = new Class(function() {});
@@ -706,8 +917,7 @@ test('name/constructor/prototype as member of class', function() {
 	//equal(A.get('name'), 'A', 'name should be ok..');
 });
 
-
-test('new Class, parent is Array/String', function() {
+describe('new Class, parent is Array/String', function() {
 	var SubArray = new Class(Array, function() {
 		this.a = 1;
 		this.initialize = function(self) {
