@@ -1,5 +1,5 @@
 var assert = require('assert');
-var oop = require('../lib/oop-node.js');
+var oop = require('../lib/oop.js');
 var Class = oop.Class;
 var Type = oop.Type;
 var property = oop.property;
