@@ -137,10 +137,12 @@ describe('staticmethod', function() {
 
 describe('classmethod', function() {
 
+	function cm(cls) {
+		return cls;
+	}
+
 	var A = new Class(function() {
-		this.cm = classmethod(function(cls) {
-			return cls;
-		});
+		this.cm = classmethod(cm);
 	});
 
 	var a = new A();
@@ -153,5 +155,10 @@ describe('classmethod', function() {
 	it('class call', function() {
 		var cls = a.cm();
 		equal(cls, A);
+	});
+
+	it('info', function() {
+		strictEqual(A.cm.im_func, cm);
+		strictEqual(a.cm.im_func, cm);
 	});
 });
