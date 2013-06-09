@@ -56,6 +56,30 @@ describe('mixin', function() {
 
 });
 
+describe('dynamic class mixin', function() {
+
+	var M = new Class({});
+
+	M.set('a', 1);
+
+	var A = new Class({
+		__mixins__: [M]
+	});
+
+	M.set('b', 1);
+
+	var a = new A();
+
+	it('before mixin', function() {
+		equal(1, a.a);
+	});
+
+	it('after mixin', function() {
+		strictEqual(undefined, a.b);
+	});
+
+});
+
 describe('multiple mixin', function() {
 	var M1 = new Class({
 		a: 1
@@ -73,6 +97,32 @@ describe('multiple mixin', function() {
 
 	it('won\'t override', function() {
 		equal(a.a, 1);
+	});
+
+});
+
+describe('extend mixin', function() {
+
+	var M = new Class({
+		m: function(self) {
+			return self;
+		}
+	});
+
+	var A = new Class({
+		__mixins__: [M]
+	});
+
+	var B = new Class(A, {
+		m: function(self) {
+			return this.parent(self);
+		}
+	});
+
+	var b = new B();
+
+	it('parent', function() {
+		strictEqual(b, b.m());
 	});
 
 });

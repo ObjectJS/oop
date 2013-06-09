@@ -37,4 +37,5 @@ describe('metaclass', function() {
 	it('initialize', function() {
 		equal(A.out2, 4);
 	});
+
 });
