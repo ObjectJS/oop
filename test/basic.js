@@ -13,9 +13,35 @@ var ok = assert.ok;
 describe('basic', function() {
 
 	var A = new Class(function() {
-		this.a = 1;
+		this.empty1 = null;
+		this.empty2 = undefined;
+		this.empty3 = '';
+		this.number1 = 1;
+		this.bool1 = true;
+		this.bool2 = false;
 	});
 	var a = new A();
+
+	it('empty member', function() {
+		strictEqual(A.empty1, null);
+		strictEqual(a.empty1, null);
+		strictEqual(A.empty2, undefined);
+		strictEqual(a.empty2, undefined);
+		strictEqual(A.empty3, '');
+		strictEqual(a.empty3, '');
+	});
+
+	it('number member', function() {
+		strictEqual(A.number1, 1);
+		strictEqual(a.number1, 1);
+	});
+
+	it('boolean member', function() {
+		strictEqual(A.bool1, true);
+		strictEqual(a.bool1, true);
+		strictEqual(A.bool2, false);
+		strictEqual(a.bool2, false);
+	});
 
 });
 
