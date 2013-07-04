@@ -183,7 +183,7 @@ describe('classmethod', function() {
 		equal(cls, A);
 	});
 
-	it('info', function() {
+	it('im_func', function() {
 		strictEqual(A.cm.im_func, cm);
 		strictEqual(a.cm.im_func, cm);
 	});

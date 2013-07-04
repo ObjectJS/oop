@@ -88,3 +88,38 @@ describe('parent in instancemethod', function() {
 	});
 
 });
+
+describe('parent in classmethod', function() {
+	var Base = new Class({
+		cm: classmethod(function(cls) {
+			return 1;
+		})
+	});
+
+	var A = new Class(Base, {
+		cm: classmethod(function(cls) {
+			return this.parent() + 1;
+		}),
+		cm2: classmethod(function(cls) {
+			return this.base.cm() + 1;
+		})
+	});
+
+	var AA = new Class(A, function() {
+	});
+
+	var a = new A();
+	var aa = new AA();
+
+	it('call parent with this.parent', function() {
+		equal(a.cm(), 2);
+	});
+
+	it('call parent with this.parent in 2-level extend', function() {
+		equal(aa.cm(), 2);
+	});
+
+	it('call parent with this.base', function() {
+		equal(a.cm2(), 2);
+	});
+});
