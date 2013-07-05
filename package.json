@@ -1,7 +1,7 @@
 {
   "name": "oop.js",
   "version": "0.0.0",
-  "description": "ERROR: No README.md file found!",
+  "description": "",
   "main": "lib/oop.js",
   "directories": {
     "test": "test"
