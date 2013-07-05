@@ -57,7 +57,8 @@ describe('parent in instancemethod', function() {
 	var Base = new Class({
 		m: function(self) {
 			return 1;
-		}
+		},
+		m3: true
 	});
 
 	var A = new Class(Base, {
@@ -66,6 +67,12 @@ describe('parent in instancemethod', function() {
 		},
 		m2: function(self) {
 			return this.base.m(self) + 1;
+		},
+		m3: function(self) {
+			return this.parent();
+		},
+		m4: function(self) {
+			return this.parent();
 		}
 	});
 
@@ -85,6 +92,15 @@ describe('parent in instancemethod', function() {
 
 	it('call parent with this.base', function() {
 		equal(a.m2(), 2);
+	});
+
+	it('no parent method', function() {
+		assert.throws(function() {
+			a.m3();
+		});
+		assert.throws(function() {
+			a.m4();
+		});
 	});
 
 });
