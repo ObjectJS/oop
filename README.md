@@ -329,22 +329,74 @@ MyClass.set('myNewCustomMethod', function() {
 
 ## metaclass
 
-使用metaclass提供了对类的创建过程的处理机制，metaclass是一个继成于Type的class，其中有两个特殊方法：
+使用metaclass提供了对类的创建过程的处理机制
 
-* `__new__` 类的创建过程
-* `initialize` 类的产生过程
+### 效果
+
+使用metaclass可以为上层库实现很多十分智能的特性，我们看以下代码：
+
+
+```
+
+var MyComponent = new Class(Component, function() {
+
+	// 自动注册事件
+	this.onclick = function(self, event) {
+	};
+	
+	// component.show() 时自动触发show事件
+	this._show = function(self) {
+	};
+	
+	// component.loadData(api).then() …
+	this.loadData = function(self, deferred, api) {
+		deferred.resolve();
+	};
+
+})
+
+```
+
+* 使用一个下划线开头的方法在调用时自动触发同名事件；
+* 使用`on`开头的方法会自动注册为事件；
+* 使用`load`开头的方法自动套用promise；
+
+### Type
+
+metaclass是一个继成于Type的class
+
+在JavaScript中，对象（Object）和函数（Function）就像是鸡和蛋的关系，函数也是一个对象，new一个函数产生一个新的对象。
+
+但是，`Function`这个特殊的对象却缺少了继承的能力，`Function`在js中是一个一级继承类（仅仅继承于Object），`Function`的子类不再具有`Function`的特性，其实例无法被调用，看下面的例子：
+
+```
+var func1 = new Function();
+func1(); // 可以调用
+
+var MyFunc = function() {};
+MyFunc.prototype = Object.create(Function.prototype);
+var func2 = new MyFunc();
+func2(); // 无法调用！
+```
+
+在本OOP库中，将Function的特性进行了扩展，使其拥有了继承的能力，这就是`Type`。所有的类都继成于`Object`，所有的类都是`Type`的实例。
 
 ### 创建一个metaclass
+
+继承于`Type`的类有两个特殊的方法：
+
+* `__new__`
+* `initialize`
 
 `__new__`方法和`initialize`方法都接收四个参数：
 
 1. 创建出来的类
-2. 类的名称（目前永远为null，为了兼容python的api）
+2. 类的名称（目前永远为null）
 3. 此类的父类
 4. 类的成员
 
-`__new__`用于修改类的定义，在非常早期的时候修改类，`type.__new__`方法用于初始化一个类；
-`initialize`用于对已经创建好的类进行修改。
+`__new__`用于修改类的定义，在类的构造阶段，非常早期的时候调用，需要返回构造好的类，默认返回 `Type.__new__(cls, name, base, dict)`
+`initialize`用于对已经创建好的类进行修改，在将类确定前的最后一次调用，没有返回值。
 
 ```
 	var MyMetaClass = new Class(Type, {
@@ -361,8 +413,15 @@ MyClass.set('myNewCustomMethod', function() {
 
 ```
 var MyClass = new Class({
-	this.__metaclass__ = MyMetaClass;	
+	this.__metaclass__ = MyMetaClass;
 });
 ```
 
+或者（开发中）
+
+```
+var MyClass2 = new MyMetaClass();
+```
+
 `__metaclass__`成员也会继承，所有子类自动适用此metaclass
+
