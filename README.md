@@ -304,7 +304,7 @@ var MyClass = new Class({
 });
 ```
 
-### 修改类
+## 动态特性
 
 一个创建好的类也可以重新修改：
 
@@ -325,7 +325,7 @@ MyClass.set('myNewCustomMethod', function() {
 });
 ```
 
-对于classmethod和staticmethod，动态修改类会导致遍历继承树，对于已经存在的比较庞大的类树，将会有比较大的性能消耗。
+修改、扩展后，继成于此类的类上的同名成员也会变化；而mixin了此类的其他类上的方法则不会变化。
 
 ## metaclass
 
