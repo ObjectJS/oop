@@ -425,3 +425,8 @@ var MyClass2 = new MyMetaClass();
 
 `__metaclass__`成员也会继承，所有子类自动适用此metaclass
 
+## 更多TODO
+
+* aop
+* 与loader结合
+* 常用decorators
