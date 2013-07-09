@@ -281,10 +281,11 @@ var MyClass = new Class(function() {
 
 单继承，通过new Class的第一个参数指定父类
 
-在继承方法中不会自动调用父类同名方法，需要手工调用，调用方法有2种：
+在继承方法中不会自动调用父类同名方法，需要手工调用，调用方法有3种：
 
 * 直接调用父类上的方法
-* this.parent 调用父类_同名_方法
+* 通过 `this.base` 找到父类进行调用
+* `this.parent` 调用父类_同名_方法
 
 ```
 var MyClass2 = new Class(MyClass, function() {
@@ -293,7 +294,8 @@ var MyClass2 = new Class(MyClass, function() {
 	 * @override
 	 */
 	this.initialize = function(self) {
-		MyClass.get('initialize')(self); // 调用父类的同名方法
+		MyClass.initialize(self); // 调用父类的同名方法
+		// 或 this.base.initialize(self);
 		// 或 this.parent(self); // this.parent指向父类同名方法
 
 		console.log('inherit class!');
