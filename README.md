@@ -1,8 +1,10 @@
-# JS OOP 库概要设计
+# OOP.JS
 
-## 目标
+## 介绍
 
-实现功能强大、适应场景广的JavaScript OOP库。
+功能强大、适应场景广的JavaScript OOP库。
+
+目前适用于 NodeJS 平台
 
 去除js中冗余、晦涩的噪音代码。
 
@@ -10,10 +12,29 @@
 How to do --> What to do
 </blockquote>
 
-* 隐藏 prototype；ß
+* 隐藏 prototype；
 * 隐藏不同引擎对js的不同处理；
 * 名称一次定义，方便改名
 * 不必写 var self = this;
+
+### 安装
+
+```
+npm install oop.js
+```
+
+### 使用示例
+
+```
+var oop = require('oop.js');
+oop.install(); // 输出 Class/property/classmethod/staticmethod 四个成员到 global
+
+var MyClass = new Class({
+	a: property(…),
+	b: classmethod(…),
+	c: staticmethod(…)
+});
+```
 
 ## 特征
 
@@ -413,7 +434,7 @@ func2(); // 无法调用！
 
 ```
 var MyClass = new Class({
-	this.__metaclass__ = MyMetaClass;
+	__metaclass__ : MyMetaClass
 });
 ```
 
@@ -425,8 +446,47 @@ var MyClass2 = new MyMetaClass();
 
 `__metaclass__`成员也会继承，所有子类自动适用此metaclass
 
-## 更多TODO
+## AOP
 
-* aop
-* 与loader结合
-* 常用decorators
+```
+oop.before;
+oop.after;
+oop.around;
+```
+
+## Decorators
+
+### fireevent
+
+```
+var MyClass = new Class({
+	load: fireevent(function(self, event) {
+	
+	});
+});
+
+var obj = new MyClass();
+obj.on('load', funciton() {
+
+);
+obj.load();
+
+```
+
+### deferred
+```
+var MyClass = new Class({
+	load: deferred(function(self, deferred) {
+		deferred.resolve();
+	});
+});
+
+var obj = new MyClass();
+obj.load().then();
+
+```
+
+
+## TODO
+
+* 与loader结合，使得类可以获得自己的名字
