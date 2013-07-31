@@ -4,7 +4,7 @@
 
 功能强大、适应场景广的JavaScript OOP库。
 
-目前适用于 NodeJS 平台
+目前适用于 NodeJS 平台。
 
 去除js中冗余、晦涩的噪音代码。
 
@@ -14,8 +14,8 @@ How to do --> What to do
 
 * 隐藏 prototype；
 * 隐藏不同引擎对js的不同处理；
-* 名称一次定义，方便改名
-* 不必写 var self = this;
+* 名称一次定义，方便改名；
+* 不必写 var self = this（可选）；
 
 ### 安装
 
@@ -305,6 +305,25 @@ var MyClass2 = new Class(MyClass, function() {
 var myClass2 = new MyClass2(); // ==> base class! inherit class!
 ```
 
+### 继承原生类
+
+oop.js 可以把任意非 oop.js 维护的类作为基类使用。
+
+```
+var MyArray = new Class(Array, {
+	load: function(self) {
+		self.push(1);
+	}
+});
+
+var arr = new MyArray();
+
+arr.load();
+
+arr.length // ==> 1
+
+```
+
 ## Mixin
 
 通过mixin，可以将另外一个类的成员mix到本类中，与继承机制不同，可以同时mix多个类。
@@ -363,26 +382,60 @@ MyClass.set('myNewCustomMethod', function() {
 
 var MyComponent = new Class(Component, function() {
 
-	// 自动注册事件
 	this.onclick = function(self, event) {
+		console.log('onclick');
 	};
 	
-	// component.show() 时自动触发show事件
 	this._show = function(self) {
+		console.log('show1');
 	};
 	
-	// component.loadData(api).then() …
 	this.loadData = function(self, deferred, api) {
 		deferred.resolve();
 	};
 
-})
+});
+
+var my = new MyComponent();
+my.fireEvent('click'); // onclick
+my.addEvent('show', function(event) {
+	console.log('show2');
+	event.preventDefault();
+});
+my.show(); // show2
+my.loadData('http://xxx').then(...);
 
 ```
+
+以上代码来自基于 oop.js 开发的 ui 组件库 objectjs-ui 的真实应用。
 
 * 使用一个下划线开头的方法在调用时自动触发同名事件；
 * 使用`on`开头的方法会自动注册为事件；
 * 使用`load`开头的方法自动套用promise；
+
+作为对比，我们看一下没有 metaclass 的 oop.js 需要写的代码：
+
+```
+var MyComponent = new Class(Component, function() {
+	
+	this.initialize = function(self) {
+		self.addEvent('click', function(event) {
+			console.log('onclick')
+		});
+	};
+
+	this.show = function(self) {
+		console.log('show1');
+		this.fireEvent('show');
+	};
+
+	this.loadData = function(self, api) {
+		var deferred = promise.defer();
+		deferred.resolve();
+		return deferred.promise;
+	};
+});
+```
 
 ### Type
 
