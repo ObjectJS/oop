@@ -286,6 +286,7 @@ var MyClass = new Class(function() {
 * 直接调用父类上的方法
 * 通过 `this.base` 找到父类进行调用
 * `this.parent` 调用父类_同名_方法
+* `this.parent.bind(arguments.callee)` 返回的函数可以在闭包内调用父类同名方法
 
 ```
 var MyClass2 = new Class(MyClass, function() {
@@ -297,7 +298,11 @@ var MyClass2 = new Class(MyClass, function() {
 		MyClass.initialize(self); // 调用父类的同名方法
 		// 或 this.base.initialize(self);
 		// 或 this.parent(self); // this.parent指向父类同名方法
-
+		// 可以在闭包内调用的 parent
+		var parent = this.parent.bind(arguments.callee);
+		;(function() {
+			parent(self);
+		});
 		console.log('inherit class!');
 	}
 });
