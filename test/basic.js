@@ -188,3 +188,22 @@ describe('classmethod', function() {
 		strictEqual(a.cm.im_func, cm);
 	});
 });
+
+describe('typeOf', function() {
+
+	var A = new Class({
+		sm: staticmethod(function() {
+
+		}),
+		cm: classmethod(function() {
+
+		})
+	});
+
+	var a = new A();
+
+	it('type', function() {
+		equal(oop.typeOf(A), 'type');
+	});
+
+});
