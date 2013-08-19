@@ -126,3 +126,24 @@ describe('extend mixin', function() {
 	});
 
 });
+
+describe('mixin native class', function() {
+	var M = function() {
+
+	};
+
+	M.prototype.m = function(value) {
+		return value;
+	};
+
+	var A = new Class({
+		__mixins__: [M]
+	});
+
+	var a = new A();
+
+	it('mixed', function() {
+		equal(a.m('a'), 'a');
+	});
+
+});

@@ -139,3 +139,24 @@ describe('parent in classmethod', function() {
 		equal(a.cm2(), 2);
 	});
 });
+
+describe('extend native class', function() {
+
+	var A = function() {
+
+	}
+
+	A.prototype.a = function() {
+		return 'a'
+	};
+
+	var B = new Class(A, {
+
+	});
+
+	var b = new B();
+
+	it('method inherited', function() {
+		equal(b.a(), 'a');
+	});
+});
