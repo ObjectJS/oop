@@ -12,7 +12,7 @@ var ok = assert.ok;
 
 describe('basic', function() {
 	var A = new Class({
-		__metaclass__: Function,
+		__metaclass__: oop.SimpleType,
 		m: function() {
 			return this;
 		}
