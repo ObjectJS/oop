@@ -10,6 +10,19 @@ var notEqual = assert.notEqual;
 var strictEqual = assert.strictEqual;
 var ok = assert.ok;
 
+describe('extend from type', function() {
+	var MC = new Class(Type, {
+		a: function() {
+			return arguments;
+		}
+	});
+
+	var A = new Class({
+		__metaclass__: MC
+	});
+
+});
+
 describe('metaclass', function() {
 
 	var MC = new Class(Type, {
