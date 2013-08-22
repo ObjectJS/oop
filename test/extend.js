@@ -12,19 +12,19 @@ var ok = assert.ok;
 
 describe('extend', function() {
 
-	var Base = new Class({
+	var A = new Class({
 		a: 1
 	});
 
-	var A = new Class(Base, {
+	var B = new Class(A, {
 		b: 1
 	});
 
-	var a = new A();
+	var b = new B();
 
 	it('member', function() {
-		equal(a.a, 1);
-		equal(a.b, 1);
+		equal(b.a, 1);
+		equal(b.b, 1);
 	});
 
 });
