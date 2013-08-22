@@ -12,8 +12,12 @@ var ok = assert.ok;
 
 describe('extend from type', function() {
 	var MC = new Class(Type, {
-		a: function() {
-			return arguments;
+		__new__: function(metaclass, name, base, dict) {
+			var c = Type.__new__(metaclass, name, base, dict);
+			return c;
+		},
+		m: function(cls) {
+			return cls;
 		}
 	});
 
@@ -21,9 +25,18 @@ describe('extend from type', function() {
 		__metaclass__: MC
 	});
 
+	it('exists', function() {
+		ok(A.m);
+	});
+
+	it('passed cls with first argument', function() {
+		strictEqual(A, A.m());
+	});
+
 });
 
 describe('metaclass', function() {
+	return;
 
 	var MC = new Class(Type, {
 		__new__: function(metaclass, name, base, dict) {
