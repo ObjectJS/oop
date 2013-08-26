@@ -170,3 +170,4 @@ describe('parent in simpleinstancemethod', function() {
 	});
 
 });
+
