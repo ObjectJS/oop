@@ -11,10 +11,14 @@ var strictEqual = assert.strictEqual;
 var ok = assert.ok;
 
 describe('extend from type', function() {
+	var initCalled = 0;
 	var MC = new Class(Type, {
 		__new__: function(metaclass, name, base, dict) {
 			var c = Type.__new__(metaclass, name, base, dict);
 			return c;
+		},
+		initialize: function(cls) {
+			initCalled++;
 		},
 		m: function(cls) {
 			return cls;
@@ -29,6 +33,10 @@ describe('extend from type', function() {
 		ok(A.m);
 	});
 
+	it('initialize called', function() {
+		equal(initCalled, 1);
+	});
+
 	it('passed cls with first argument', function() {
 		strictEqual(A, A.m());
 	});
@@ -36,7 +44,6 @@ describe('extend from type', function() {
 });
 
 describe('metaclass', function() {
-	return;
 
 	var MC = new Class(Type, {
 		__new__: function(metaclass, name, base, dict) {

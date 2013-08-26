@@ -29,6 +29,32 @@ describe('extend', function() {
 
 });
 
+describe('private member', function() {
+	var A = new Class({
+		__a: 1,
+		__m: function() {}
+	});
+	var B = new Class(A, {
+	});
+	var a = new A();
+	var b = new B();
+
+	it('accessors in Base', function() {
+		strictEqual(A.__a, 1);
+		strictEqual(a.__a, 1);
+		ok(A.__m);
+		ok(a.__m);
+	});
+
+	it('accessors in extended', function() {
+		strictEqual(B.__a, undefined);
+		strictEqual(B.__m, undefined);
+		strictEqual(b.__a, undefined);
+		strictEqual(b.__m, undefined);
+	})
+
+});
+
 describe('instancemethod with extend', function() {
 	var Base = new Class(function() {
 		this.m = function(self) {
