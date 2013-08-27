@@ -9,12 +9,13 @@ var equal = assert.equal;
 var notEqual = assert.notEqual;
 var strictEqual = assert.strictEqual;
 var ok = assert.ok;
+var simple = require('../lib/simpletype.js');
 
 describe('property', function() {
 
 	var A = new Class(function() {
 
-		this.__metaclass__ = oop.SimpleType;
+		this.__metaclass__ = simple.SimpleType;
 
 		this.a = property(function() {
 			return Number(this._a || 0);
@@ -56,7 +57,7 @@ describe('property', function() {
 
 describe('simpleinstancemethod', function() {
 	var A = new Class({
-		__metaclass__: oop.SimpleType,
+		__metaclass__: simple.SimpleType,
 		m: function() {
 			return this;
 		}
@@ -77,7 +78,7 @@ describe('simpleinstancemethod', function() {
 describe('extend', function() {
 
 	var A = new Class({
-		__metaclass__: oop.SimpleType,
+		__metaclass__: simple.SimpleType,
 		a: 1
 	});
 
@@ -95,7 +96,7 @@ describe('extend', function() {
 
 describe('simpleinstancemethod with extend', function() {
 	var Base = new Class(function() {
-		this.__metaclass__ = oop.SimpleType;
+		this.__metaclass__ = simple.SimpleType;
 		this.m = function() {
 			return this;
 		};
@@ -120,7 +121,7 @@ describe('simpleinstancemethod with extend', function() {
 describe('parent in simpleinstancemethod', function() {
 
 	var Base = new Class({
-		__metaclass__: oop.SimpleType,
+		__metaclass__: simple.SimpleType,
 		m: function() {
 			return 1;
 		},
