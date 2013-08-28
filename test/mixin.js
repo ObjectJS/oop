@@ -3,7 +3,6 @@ var oop = require('../lib/oop.js');
 var Class = oop.Class;
 var Type = oop.Type;
 var property = oop.property;
-var classmethod = oop.classmethod;
 var staticmethod = oop.staticmethod;
 var equal = assert.equal;
 var notEqual = assert.notEqual;
@@ -17,12 +16,9 @@ describe('mixin', function() {
 		p1: property(function() {
 			return 1;
 		}),
-		m: function(self) {
-			return self.a1;
+		m: function() {
+			return this.a1;
 		},
-		cm: classmethod(function(cls, value) {
-			return value;
-		}),
 		sm: staticmethod(function(value) {
 			return value;
 		})
@@ -48,10 +44,6 @@ describe('mixin', function() {
 
 	it('staticmethod mixed', function() {
 		equal(a.sm(1), 1);
-	});
-
-	it('classmethod mixed', function() {
-		equal(a.cm(1), 1);
 	});
 
 });
@@ -104,8 +96,8 @@ describe('multiple mixin', function() {
 describe('extend mixin', function() {
 
 	var M = new Class({
-		m: function(self) {
-			return self;
+		m: function() {
+			return this;
 		}
 	});
 
@@ -114,9 +106,6 @@ describe('extend mixin', function() {
 	});
 
 	var B = new Class(A, {
-		m: function(self) {
-			return this.parent(self);
-		}
 	});
 
 	var b = new B();

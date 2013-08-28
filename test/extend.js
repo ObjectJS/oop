@@ -31,9 +31,12 @@ describe('extend', function() {
 
 describe('instancemethod with extend', function() {
 	var Base = new Class(function() {
-		this.m = function(self) {
-			return self;
+		this.m = function() {
+			return this;
 		};
+		this.m2 = function() {
+			return arguments;
+		}
 	});
 
 	var A = new Class(Base, function() {
@@ -45,34 +48,40 @@ describe('instancemethod with extend', function() {
 	var a = new A();
 	var aa = new AA();
 
-	it('pass self with first argument in oeject call', function() {
+	it('this', function() {
 		strictEqual(a, a.m());
 		strictEqual(aa, aa.m());
 	});
 
+	it('arguments', function() {
+		strictEqual(0, a.m2().length);
+		strictEqual('a', aa.m2('a')[0]);
+	});
+
 });
+
 
 describe('parent in instancemethod', function() {
 
 	var Base = new Class({
-		m: function(self) {
+		m: function() {
 			return 1;
 		},
 		m3: true
 	});
 
 	var A = new Class(Base, {
-		m: function(self) {
-			return this.parent(self) + 1;
+		m: function() {
+			return oop.parent(this) + 1;
 		},
-		m2: function(self) {
-			return this.base.m(self) + 1;
+		m2: function() {
+			return this.__class__.__base__.prototype.m.apply(this, arguments) + 1;
 		},
-		m3: function(self) {
-			return this.parent();
+		m3: function() {
+			return oop.parent();
 		},
-		m4: function(self) {
-			return this.parent();
+		m4: function() {
+			return oop.parent();
 		}
 	});
 
@@ -90,7 +99,7 @@ describe('parent in instancemethod', function() {
 		equal(aa.m(), 2);
 	});
 
-	it('call parent with this.base', function() {
+	it('call parent with __base__', function() {
 		equal(a.m2(), 2);
 	});
 
@@ -103,41 +112,6 @@ describe('parent in instancemethod', function() {
 		});
 	});
 
-});
-
-describe('parent in classmethod', function() {
-	var Base = new Class({
-		cm: classmethod(function(cls) {
-			return 1;
-		})
-	});
-
-	var A = new Class(Base, {
-		cm: classmethod(function(cls) {
-			return this.parent() + 1;
-		}),
-		cm2: classmethod(function(cls) {
-			return this.base.cm() + 1;
-		})
-	});
-
-	var AA = new Class(A, function() {
-	});
-
-	var a = new A();
-	var aa = new AA();
-
-	it('call parent with this.parent', function() {
-		equal(a.cm(), 2);
-	});
-
-	it('call parent with this.parent in 2-level extend', function() {
-		equal(aa.cm(), 2);
-	});
-
-	it('call parent with this.base', function() {
-		equal(a.cm2(), 2);
-	});
 });
 
 describe('extend native class', function() {
@@ -164,27 +138,31 @@ describe('extend native class', function() {
 describe('private member', function() {
 	var A = new Class({
 		__a: 1,
-		__m: function(self) {
-			self.__a = 2;
-		}
+		__m: function() {
+			this.__a = 2;
+		},
+		__sm: staticmethod(function(value) {
+			return value;
+		})
 	});
 	var B = new Class(A, {
 	});
 	var a = new A();
 	var b = new B();
 
-	it('accessors in Base', function() {
+	it('accessors in base', function() {
 		strictEqual(A.__a, 1);
 		strictEqual(a.__a, 1);
-		ok(A.__m);
 		ok(a.__m);
+		strictEqual(a.__sm(1), 1);
 	});
 
 	it('accessors in extended', function() {
 		strictEqual(B.__a, undefined);
-		strictEqual(B.__m, undefined);
 		strictEqual(b.__a, undefined);
 		strictEqual(b.__m, undefined);
+		strictEqual(B.__sm, undefined);
+		strictEqual(b.__sm, undefined);
 	});
 
 	it('set', function() {
