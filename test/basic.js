@@ -102,7 +102,7 @@ describe('property', function() {
 	});
 
 	it('dynamic setter', function() {
-		oop.setattr(A, 'd', property(function() {return 1}));
+		A.__setattr__('d', property(function() {return 1}));
 		strictEqual(a.d, 1);
 	});
 
