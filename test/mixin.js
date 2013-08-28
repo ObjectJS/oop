@@ -52,13 +52,13 @@ describe('dynamic class mixin', function() {
 
 	var M = new Class({});
 
-	M.set('a', 1);
+	oop.set(M, 'a', 1);
 
 	var A = new Class({
 		__mixins__: [M]
 	});
 
-	M.set('b', 1);
+	oop.set(M, 'b', 1);
 
 	var a = new A();
 

@@ -101,6 +101,11 @@ describe('property', function() {
 		strictEqual(a.c, undefined);
 	});
 
+	it('dynamic setter', function() {
+		oop.setattr(A, 'd', property(function() {return 1}));
+		strictEqual(a.d, 1);
+	});
+
 });
 
 describe('instancemethod', function() {

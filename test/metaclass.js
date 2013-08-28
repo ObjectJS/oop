@@ -31,7 +31,6 @@ describe('extend from type', function() {
 	});
 
 	it('exists', function() {
-		ok(A.set);
 		ok(A.m);
 	});
 
