@@ -31,6 +31,7 @@ describe('extend from type', function() {
 	});
 
 	it('exists', function() {
+		ok(A.set);
 		ok(A.m);
 	});
 
@@ -64,6 +65,9 @@ describe('metaclass', function() {
 		__metaclass__: MC,
 		num1: 1,
 		num2: 2,
+		// cls.initialize 默认 === metaclass.prototype.initialize
+		// 若修改，也不应该影响其调用
+		initialize: staticmethod(function() {}),
 		m: function(){}
 	});
 
@@ -78,3 +82,25 @@ describe('metaclass', function() {
 	});
 
 });
+
+describe('extended metaclass', function() {
+
+	var M1 = new Class(Type, {
+		m: function() {
+
+		}
+	});
+
+	var M2 = new Class(M1, {
+
+	});
+
+	var A = new Class({
+		__metaclass__: M2
+	});
+
+	it('exists', function() {
+		ok(A.m);
+	});
+
+})
