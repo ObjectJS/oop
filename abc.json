@@ -1,0 +1,14 @@
+{
+    "name": "oop",
+    "version": "1.0",
+    "desc": "",
+    "cover": "",
+    "tag":"oop",
+    "author": {
+        "name": "goto100",
+        "email": "yiyu.ljw@taobao.com",
+        "page": ""
+    },
+    "type": "kissy-gallery",
+    "type-url": "http://gallery.kissyui.com/guide"
+}
