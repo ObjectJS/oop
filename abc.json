@@ -1,13 +1,13 @@
 {
     "name": "oop",
     "version": "0.1",
-    "desc": "",
+    "desc": "OOP库",
     "cover": "",
     "tag":"oop",
     "author": {
         "name": "goto100",
         "email": "yiyu.ljw@taobao.com",
-        "page": ""
+        "page": "http://github.com/goto100"
     },
     "type": "kissy-gallery",
     "type-url": "http://gallery.kissyui.com/guide"
