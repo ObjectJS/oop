@@ -27,7 +27,7 @@ module.exports = function(grunt) {
             main: {
                 files: [
                     {
-                        src: "<%= pkg.version %>/index.js",
+                        src: "lib/oop.js",
                         dest: "<%= pkg.version %>/build/index.js"
                     }
                 ]
