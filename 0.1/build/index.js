@@ -1,10 +1,10 @@
 /*
 combined files : 
 
-gallery/oop/lib/oop
+gallery/oop/0.1/index
 
 */
-KISSY.add('gallery/oop/lib/oop',function() {
+KISSY.add('gallery/oop/0.1/index',function() {
 
 // 无法通过 Object.defineProperty 判断是否支持，IE8 有此方法，但无法设置普通对象
 var supportDefineProperty = true;

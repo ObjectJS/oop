@@ -12,6 +12,15 @@ module.exports = function(grunt) {
             '* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
             ' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */\n',
 
+        copy: {
+            main: {
+                files: [
+                    {src: ['lib/oop.js'], dest: '<%= pkg.version %>/index.js'},
+                    {src: ['<%= pkg.version %>/index.css'], dest: '<%= pkg.version %>/build/index.css'}
+                ]
+            }
+        },
+
         // kmc打包任务，默认情况，入口文件是index.js，可以自行添加入口文件，在files下面
         // 添加
         kmc: {
@@ -27,7 +36,7 @@ module.exports = function(grunt) {
             main: {
                 files: [
                     {
-                        src: "lib/oop.js",
+                        src: "<%= pkg.version %>/index.js",
                         dest: "<%= pkg.version %>/build/index.js"
                     }
                 ]
@@ -48,13 +57,6 @@ module.exports = function(grunt) {
                 }
             }
         },
-        copy: {
-            main: {
-                files: [
-                    {src: ['<%= pkg.version %>/index.css'], dest: '<%= pkg.version %>/build/index.css'}
-                ]
-            }
-        },
         cssmin: {
             combine: {
                 files: {
@@ -65,9 +67,9 @@ module.exports = function(grunt) {
     });
 
     // 使用到的任务，可以增加其他任务
-    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-kmc');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
-    grunt.loadNpmTasks('grunt-contrib-copy');
-    return grunt.registerTask('default', ['kmc', 'uglify']);
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    return grunt.registerTask('default', ['copy', 'kmc', 'uglify']);
 };
