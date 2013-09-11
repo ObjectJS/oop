@@ -18,7 +18,7 @@ How to do --> What to do
 
 * nodejs
 * 浏览器 _开发中_
-* KISSY 已发布至 [kissy gallery](http://gallery.kissyui.com/oui/0.1/guide/index.html)
+* KISSY 已发布至 [kissy gallery](http://gallery.kissyui.com/oop/0.1/guide/index.html)
 
 ### 安装及使用
 
