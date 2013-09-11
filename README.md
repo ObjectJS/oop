@@ -18,7 +18,7 @@ How to do --> What to do
 
 * nodejs
 * 浏览器 _开发中_
-* KISSY 已发布至 [kissy gallery](http://gallery.kissyui.com/oui/0.1/guide/index.html)
+* KISSY 已发布至 [kissy gallery](http://gallery.kissyui.com/oop/0.1/guide/index.html)
 
 ### 安装及使用
 
@@ -75,7 +75,7 @@ KISS.use('gallery/oop/0.1/index', function(S, oop) {
 
 ```
 class A(object):
-  @classmethod
+  @staticmethod
   @mydecorator('a', 'b')
   def myMethod():
     pass
@@ -85,7 +85,7 @@ class A(object):
 
 ```
 var A = new Class(Object, function() {
-  this.myMethod = classmethod(mydecorator('a', 'b')(function() {
+  this.myMethod = staticmethod(mydecorator('a', 'b')(function() {
   }));
 });
 ```
@@ -135,7 +135,7 @@ var MyClass = new Class({
 
 由于JS中区分传值引用与地址引用，普通的静态属性需要注意对象在类的创建过程中是*地址引用*的，也就是说没有自动帮你将这些对象成员自动拷贝一份到实例上。
 
-如果需要为每个实例设置不同的初始化值，需要在构造函数中对已经产生的实例进行赋值。或者使用property属性也可实现类似的功能。
+如果需要为每个实例设置不同的初始化值，需要在构造函数中对已经产生的实例进行赋值。或者使用 property 属性也可实现类似的功能。
 
 ```
 var MyClass = new Class(function() {
@@ -271,6 +271,27 @@ var MyClass2 = new Class(MyClass, function() {
 
 var myClass2 = new MyClass2(); // ==> base class! inherit class!
 ```
+
+### 私有成员
+
+在 oop.js 中，双下划线开头的成员被认为是私有成员，不会被继承，比如：
+
+```
+var A = new Class({
+    __a: 1,
+    a: 1
+});
+
+var B = new Class(A, {
+});
+
+var b = new B();
+
+console.log(b.__a) // ==> undefined
+
+```
+
+	然而由于各个 js 引擎的支持程度不一样，在某些环境下私有成员的特性仅仅是个__约定__，而并没有从技术上进行限制，请遵守这个约定。
 
 ### 继承原生类
 
