@@ -1,3 +1,3 @@
 config({
-    'gallery/oop/index': {alias: ['gallery/oop/1.0/index']}
+    'gallery/oop/index': {alias: ['gallery/oop/0.1/index']}
 });

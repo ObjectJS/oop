@@ -25,8 +25,26 @@
         });
     }
 
-    S.use('gallery/oop/1.0/index', function (S, Oop) {
-          new Oop();
+    S.use('gallery/oop/0.1/index', function (S, oop) {
+        var MyClass = new oop.Class({
+            p: oop.property(function() {
+                return this.__p;
+            }, function(value) {
+                this.__p = String(value).toUpperCase();
+            }),
+            m: function() {
+                console.log('called');
+            },
+            sm: oop.staticmethod(function() {
+                console.log('called');
+            })
+        });
+
+        var my = new MyClass();
+        my.m(); // ==> called
+        MyClass.sm(); // ==> called
+        my.p = 'a';
+        console.log(my.p) // ==> A
     })
 </script>
 </body>
