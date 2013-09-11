@@ -75,7 +75,7 @@ KISS.use('gallery/oop/0.1/index', function(S, oop) {
 
 ```
 class A(object):
-  @classmethod
+  @staticmethod
   @mydecorator('a', 'b')
   def myMethod():
     pass
@@ -85,7 +85,7 @@ class A(object):
 
 ```
 var A = new Class(Object, function() {
-  this.myMethod = classmethod(mydecorator('a', 'b')(function() {
+  this.myMethod = staticmethod(mydecorator('a', 'b')(function() {
   }));
 });
 ```
