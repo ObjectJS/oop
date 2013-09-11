@@ -60,28 +60,58 @@ describe('instancemethod with extend', function() {
 
 });
 
-
 describe('parent in instancemethod', function() {
 
 	var Base = new Class({
-		m: function() {
-			return 1;
+		m: function(value) {
+			return value;
 		},
-		m3: true
+		m3: true,
+		m5: function(value) {
+			return value;
+		},
+		m6: function(value) {
+			return value;
+		}
 	});
 
 	var A = new Class(Base, {
 		m: function() {
-			return oop.parent(this) + 1;
+			return oop.parent(this, 1) + 1;
 		},
 		m2: function() {
 			return this.__class__.__base__.prototype.m.apply(this, arguments) + 1;
 		},
 		m3: function() {
-			return oop.parent();
+			return oop.parent(this);
 		},
 		m4: function() {
-			return oop.parent();
+			return oop.parent(this);
+		},
+		m5: function() {
+			var self = this;
+			var result;
+			(function() {
+				(function() {
+					(function() {
+						result = oop.parent(self, 2);
+					})();
+				})();
+			})();
+			return result;
+		},
+		m6: function() {
+			var self = this;
+			var parent = oop.parent.bind(arguments.callee);
+			var result;
+			(function() {
+				(function() {
+					(function() {
+						result = parent(self, 3);
+					})();
+				})();
+			})();
+			return result;
 		}
 	});
 
@@ -100,7 +130,7 @@ describe('parent in instancemethod', function() {
 	});
 
 	it('call parent with __base__', function() {
-		equal(a.m2(), 2);
+		equal(a.m2(1), 2);
 	});
 
 	it('no parent method', function() {
@@ -110,6 +140,14 @@ describe('parent in instancemethod', function() {
 		assert.throws(function() {
 			a.m4();
 		});
+	});
+
+	it('parent in closure', function() {
+		equal(2, a.m5());
+	});
+
+	it('bound parent in closure', function() {
+		equal(3, a.m6());
 	});
 
 });
