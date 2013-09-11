@@ -12,3 +12,5 @@
     })
 
 ## API说明
+
+	文档请移步 [github](https://github.com/ObjectJS/oop)
