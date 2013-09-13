@@ -82,6 +82,15 @@ describe('property', function() {
 
 	var a = new A();
 
+	it('__properties__', function() {
+		equal(Object.keys(a.__properties__).length, 3);
+	});
+
+	it('name readable', function() {
+		var p = a.__properties__['a'];
+		equal(p.__name__, 'a');
+	});
+
 	it('readable and writable with getter and setter', function() {
 		strictEqual(a.a, 0);
 		a.a = '2';
